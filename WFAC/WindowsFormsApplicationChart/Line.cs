@@ -10,9 +10,9 @@ namespace WindowsFormsApplicationChart
         public Line()
         { }
 
-        public Line(List<DataPoint> points)
+        public Line(IEnumerable<DataPoint> points)
         {
-            foreach (DataPoint point in points)
+            foreach (var point in points)
             {
                 Points.Add(new DataPoint(point.XValue, point.YValues[0]));
             }

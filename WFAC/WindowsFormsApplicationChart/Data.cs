@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -18,7 +17,7 @@ namespace WindowsFormsApplicationChart
 
         private static string SaveFile()
         {
-            var dialog = new SaveFileDialog() { DefaultExt = ".csv", Filter = "(.csv)|*.csv" };
+            var dialog = new SaveFileDialog { DefaultExt = ".csv", Filter = "(.csv)|*.csv" };
             dialog.ShowDialog();
             return dialog.FileName;
         }
@@ -27,8 +26,8 @@ namespace WindowsFormsApplicationChart
         {
             var pointsObservable = new ObservableCollection<List<DataPoint>>();
 
-            bool cuts = false;
-            int i = 0;
+            var cuts = false;
+            var i = 0;
 
             var points = new List<DataPoint>();
             var filename = OpenFile();
@@ -40,7 +39,7 @@ namespace WindowsFormsApplicationChart
             {
                 var line = reader.ReadLine();
 
-                if (System.String.CompareOrdinal(line, "cuts") == 0)
+                if (string.CompareOrdinal(line, "cuts") == 0)
                 {
                     pointsObservable.Add(points);
                     points = new List<DataPoint>();
@@ -80,14 +79,14 @@ namespace WindowsFormsApplicationChart
 
         public static void Save(Chart chart)
         {
-            string filename = SaveFile();
+            var filename = SaveFile();
 
             if (string.IsNullOrEmpty(filename) || chart.Series.Count <= 0) return;
 
             File.Delete(filename);
             var writer = new StreamWriter(File.OpenWrite(filename));
 
-            foreach (DataPoint point in chart.Series[0].Points)
+            foreach (var point in chart.Series[0].Points)
             {
                 writer.WriteLine(string.Concat(point.XValue, ",", point.YValues[0]));
             }
@@ -96,11 +95,11 @@ namespace WindowsFormsApplicationChart
             {
                 writer.WriteLine("cuts");
 
-                foreach (Series series in chart.Series)
+                foreach (var series in chart.Series)
                 {
                     if (series is Cut)
                     {
-                        foreach (DataPoint point in series.Points)
+                        foreach (var point in series.Points)
                         {
                             writer.WriteLine(string.Concat(point.XValue, ",", point.YValues[0]));
                         }

@@ -1,30 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using System.Windows.Forms.VisualStyles;
-using Cursor = System.Windows.Forms.Cursor;
 
 namespace WindowsFormsApplicationChart
 {
-    public partial class mainForm : Form
+    public partial class MainForm : Form
     {
         private Line mainLine;
         private ChartArea mainArea;
         private double positionX;
         private double positionY;
 
-        public mainForm()
+        public MainForm()
         {
             InitializeComponent();
-            this.Load += new EventHandler(mainForm_Load);
+            Load += mainForm_Load;
         }
 
         private void mainForm_Load(object sender, EventArgs e)
@@ -43,8 +36,8 @@ namespace WindowsFormsApplicationChart
 
             mainLine.Points.Clear();
 
-            chart.MouseMove -= new MouseEventHandler(chart_MouseMove);
-            chart.MouseDown -= new MouseEventHandler(chart_MouseDown_Cut);
+            chart.MouseMove -= chart_MouseMove;
+            chart.MouseDown -= chart_MouseDown_Cut;
         }
 
         private void loadMenuItem_Click(object sender, EventArgs e)
@@ -60,20 +53,19 @@ namespace WindowsFormsApplicationChart
             mainArea_Set();
             mainArea_Reset();
 
-            Cut cut;
-            for (int i = 1; i < data.Count; i++)
+            for (var i = 1; i < data.Count; i++)
             {
-                cut = new Cut(data[i]);
-                cut.Draw(chart);
-                cut.DetailsPanel = cutDetailsPanel;
-                cut.AddToPanel(cutCollectionPanel);
+                var current = new Cut(data[i]);
+                current.Draw(chart);
+                current.DetailsPanel = cutDetailsPanel;
+                current.AddToPanel(cutCollectionPanel);
             }
 
             minMaxPanel_Set();
             zoom_Set();
 
-            chart.MouseMove += new MouseEventHandler(chart_MouseMove);
-            chart.MouseDown += new MouseEventHandler(chart_MouseDown_Cut);
+            chart.MouseMove += chart_MouseMove;
+            chart.MouseDown += chart_MouseDown_Cut;
         }
 
         private void saveMenuItem_Click(object sender, EventArgs e)
@@ -104,10 +96,12 @@ namespace WindowsFormsApplicationChart
             var logY = mainArea.AxisY.IsLogarithmic;
 
             chart.ChartAreas.Clear();
-            mainArea = new ChartArea();
-            mainArea.AxisX.IsLogarithmic = logX;
-            mainArea.AxisY.IsLogarithmic = logY;
-            chart.ChartAreas.Add(mainArea);
+            mainArea = new ChartArea
+            {
+	            AxisX = {IsLogarithmic = logX}, 
+				AxisY = {IsLogarithmic = logY}
+            };
+	        chart.ChartAreas.Add(mainArea);
         }
 
         private void mainArea_Reset()
@@ -135,8 +129,8 @@ namespace WindowsFormsApplicationChart
         #region Logarithmic
         private void logCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (sender == null) return;
-            var logCheckBox = sender as CheckBox;
+			var logCheckBox = sender as CheckBox;
+			if (logCheckBox == null) return;
 
             if (logCheckBox.Checked)
             {
@@ -168,7 +162,7 @@ namespace WindowsFormsApplicationChart
             if (string.CompareOrdinal(logCheckBox.Name, "yLogCheckBox") == 0)
             {
                 var minY = mainLine.Points[0].YValues[0];
-                foreach (DataPoint point in mainLine.Points)
+                foreach (var point in mainLine.Points)
                 {
                     if (point.YValues[0] < minY) minY = point.YValues[0];
                 }
@@ -193,11 +187,11 @@ namespace WindowsFormsApplicationChart
 
         private bool PointsValid()
         {
-            foreach (Series series in chart.Series)
+            foreach (var series in chart.Series)
             {
                 if (series is Cut)
                 {
-                    foreach (DataPoint point in series.Points)
+                    foreach (var point in series.Points)
                     {
                         if (point.XValue <= 0 || point.YValues[0] <= 0)
                         {
@@ -209,7 +203,7 @@ namespace WindowsFormsApplicationChart
             return true;
         }
 
-        private void mainLine_InfoMessage()
+        private static void mainLine_InfoMessage()
         {
             MessageBox.Show("На логарифмической шкале возможна интерпретация только положительных значений.",
                 string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -223,7 +217,7 @@ namespace WindowsFormsApplicationChart
 
             foreach (var control in minMaxPanel.Controls)
                 if (control is TextBox)
-                    (control as TextBox).TextChanged += new EventHandler(minMaxTextBox_TextChanged);
+                    (control as TextBox).TextChanged += minMaxTextBox_TextChanged;
         }
 
         private void minMaxPanel_Reset()
@@ -236,8 +230,8 @@ namespace WindowsFormsApplicationChart
 
         private void minMaxTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (sender == null) return;
-            var minMaxTextBox = sender as TextBox;
+			var minMaxTextBox = sender as TextBox;
+			if (minMaxTextBox == null) return;
 
             if (minMaxTextBox.Text.Length > 20) minMaxTextBox.Text = string.Empty;
 
@@ -307,8 +301,8 @@ namespace WindowsFormsApplicationChart
             cut = new Cut(pointStick.XValue, pointStick.YValues[0], pointStick.XValue, pointStick.YValues[0]);
             cut.Draw(chart);
 
-            chart.MouseMove += new MouseEventHandler(chart_MouseMove_Cut);
-            chart.MouseUp += new MouseEventHandler(chart_MouseUp_Cut);
+            chart.MouseMove += chart_MouseMove_Cut;
+            chart.MouseUp += chart_MouseUp_Cut;
         }
 
         private void chart_MouseMove_Cut(object sender, MouseEventArgs e)
@@ -340,16 +334,16 @@ namespace WindowsFormsApplicationChart
 
             cut = null;
 
-            chart.MouseMove -= new MouseEventHandler(chart_MouseMove_Cut);
-            chart.MouseUp -= new MouseEventHandler(chart_MouseUp_Cut);
+            chart.MouseMove -= chart_MouseMove_Cut;
+            chart.MouseUp -= chart_MouseUp_Cut;
         }
 
         private void xTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (sender == null) return;
-            var xTextBox = sender as TextBox;
-
-            if (xTextBox.Text.Length > 20) xTextBox.Text = string.Empty;
+			var xTextBox = sender as TextBox;
+			if (xTextBox == null) return;
+            
+			if (xTextBox.Text.Length > 20) xTextBox.Text = string.Empty;
 
             double value, x1, x2;
 
@@ -364,16 +358,15 @@ namespace WindowsFormsApplicationChart
 
             if (double.TryParse(x1TextBox.Text, out x1) && double.TryParse(x2TextBox.Text, out x2))
             {
-                if (cutDetailsPanel.Tag == null) return;
+				var currentCut = cutDetailsPanel.Tag as Cut;
+				if (currentCut == null) return;
 
-                var cut = cutDetailsPanel.Tag as Cut;
+                if (string.CompareOrdinal(xTextBox.Name, "x1TextBox") == 0) currentCut.X1 = x1;
+                if (string.CompareOrdinal(xTextBox.Name, "x2TextBox") == 0) currentCut.X2 = x2;
 
-                if (string.CompareOrdinal(xTextBox.Name, "x1TextBox") == 0) cut.X1 = x1;
-                if (string.CompareOrdinal(xTextBox.Name, "x2TextBox") == 0) cut.X2 = x2;
-
-                lenghtLabel.Text = cut.Lenght.ToString();
-                slopeLabel.Text = cut.Area.ToString();
-                areaLabel.Text = cut.Slope.ToString();
+                lenghtLabel.Text = currentCut.Lenght.ToString();
+                slopeLabel.Text = currentCut.Area.ToString();
+                areaLabel.Text = currentCut.Slope.ToString();
             }
             else
             {
@@ -383,7 +376,7 @@ namespace WindowsFormsApplicationChart
             }
         }
 
-        private void cut_InfoMessage()
+        private static void cut_InfoMessage()
         {
             MessageBox.Show("На логарифмической шкале возможна интерпретация только отрезков с положительными значениями.",
                         string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);

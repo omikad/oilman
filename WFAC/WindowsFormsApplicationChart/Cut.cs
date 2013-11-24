@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Net.Mime;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -145,13 +144,13 @@ namespace WindowsFormsApplicationChart
         #region Add & Remove
         public void AddToPanel(Panel panel)
         {
-            Panel cutPanel = new Panel
+            var cutPanel = new Panel
             {
                 Width = 170,
                 Height = 20
             };
 
-            Label removeLabel = new Label
+            var removeLabel = new Label
             {
                 Text = "x",
                 Width = 10,
@@ -160,15 +159,15 @@ namespace WindowsFormsApplicationChart
                 Location = new Point(155, 3),
                 Cursor = Cursors.Hand
             };
-            removeLabel.MouseDown += new MouseEventHandler(removeLabel_MouseDown);
+            removeLabel.MouseDown += removeLabel_MouseDown;
             cutPanel.Controls.Add(removeLabel);
 
-            Label cutLabel = new Label
+            var cutLabel = new Label
             {
                 Width = 160,
                 Location = new Point(3, 3)
             };
-            cutLabel.MouseDown += new MouseEventHandler(cutLabel_MouseDown);
+            cutLabel.MouseDown += cutLabel_MouseDown;
             cutPanel.Controls.Add(cutLabel);
 
             panel.Controls.Add(cutPanel);
@@ -187,13 +186,13 @@ namespace WindowsFormsApplicationChart
             ChangePanel(cutCollectionPanel);
         }
 
-        private void ChangePanel(Panel panel)
+        private static void ChangePanel(Panel panel)
         {
-            int y = -17;
-            int i = 0;
+            var y = -17;
+            var i = 0;
             foreach (Panel control in panel.Controls)
             {
-                (control.Controls[1] as Label).Text = string.Concat("отрезок ", (++i).ToString());
+				control.Controls[1].Text = string.Concat("отрезок ", (++i).ToString());
                 control.Location = new Point(3, y += 20);
             }
         }
@@ -211,8 +210,8 @@ namespace WindowsFormsApplicationChart
         {
             if (sender == null) return;
 
-            Panel cutPanel = (sender as Label).Parent as Panel;
-            Panel cutCollectionPanel = cutPanel.Parent as Panel;
+			var cutPanel = (Panel)((Control)sender).Parent;
+			var cutCollectionPanel = (Panel)cutPanel.Parent;
 
             foreach (Panel p in cutCollectionPanel.Controls)
             {
@@ -243,8 +242,8 @@ namespace WindowsFormsApplicationChart
         {
             if (sender == null) return;
 
-            Panel cutPanel = (sender as Label).Parent as Panel;
-            Panel cutCollectionPanel = cutPanel.Parent as Panel;
+			var cutPanel = (Panel)((Control)sender).Parent;
+			var cutCollectionPanel = (Panel)cutPanel.Parent;
             RemoveFromPanel(cutCollectionPanel, cutPanel);
         }
         #endregion

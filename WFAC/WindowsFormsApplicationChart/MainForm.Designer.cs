@@ -1,6 +1,6 @@
 ﻿namespace WindowsFormsApplicationChart
 {
-    partial class mainForm
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -406,7 +406,7 @@
             this.yLogCheckBox.UseVisualStyleBackColor = true;
             this.yLogCheckBox.CheckedChanged += new System.EventHandler(this.logCheckBox_CheckedChanged);
             // 
-            // mainForm
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -419,7 +419,7 @@
             this.Controls.Add(this.menuPanel);
             this.MainMenuStrip = this.menuPanel;
             this.MinimumSize = new System.Drawing.Size(840, 400);
-            this.Name = "mainForm";
+            this.Name = "MainForm";
             this.SizeChanged += new System.EventHandler(this.mainForm_SizeChanged);
             this.cutsPanel.ResumeLayout(false);
             this.cutDetailsPanel.ResumeLayout(false);

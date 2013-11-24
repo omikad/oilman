@@ -5,15 +5,15 @@ namespace WindowsFormsApplicationChart
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
+	        AppDomain.CurrentDomain.UnhandledException +=
+				(sender, args) => MessageBox.Show(args.ExceptionObject == null ? "null" : args.ExceptionObject.ToString());
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new mainForm());
+            Application.Run(new MainForm());
         }
     }
 }
