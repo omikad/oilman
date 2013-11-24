@@ -91,15 +91,15 @@ namespace WindowsFormsApplicationChart
             Points.Add(new DataPoint(X1, Y1));
             Points.Add(new DataPoint(X2, Y2));
 
-            Lenght = MathLenght();
+            Lenght = MathLength();
             Area = MathArea();
             Slope = MathSlope();
         }
 
         #region Math
-        private double MathLenght()
+        private double MathLength()
         {
-            return Math.Sqrt(Math.Pow(Math.Abs(X2 - X1), 2) + Math.Pow(Math.Abs(Y2 - Y1), 2));
+	        return Math.Abs(X2 - X1);
         }
 
         private double MathArea()
@@ -109,7 +109,10 @@ namespace WindowsFormsApplicationChart
 
         private double MathSlope()
         {
-            return 0;
+	        if (Math.Abs(X1 - X2) < 1e-10)
+				return Y2 >= Y1 ? double.PositiveInfinity : double.NegativeInfinity;
+
+	        return (Y2 - Y1) / (X2 - X1);
         }
         #endregion
 
@@ -131,14 +134,26 @@ namespace WindowsFormsApplicationChart
             chart.Series.Clear();
         }
 
-        /* прилипание
-         * line - основная линия графика
-         * point - точка позиции курсора мыши
-        */
-        public static DataPoint CalcStick(Line line, DataPoint point)
-        {
-            return point;
-        }
+		/// <summary>
+		/// прилипание
+		/// </summary>
+		/// <param name="line">основная линия графика</param>
+		/// <param name="chartX">точка позиции курсора мыши в координатах графика</param>
+        public static DataPoint CalcStick(Line line, double chartX)
+		{
+			var leftRight = line.GetLeftRight(chartX);
+
+			var lx = leftRight.Item1.XValue;
+			var ly = leftRight.Item1.YValues[0];
+			var rx = leftRight.Item2.XValue;
+			var ry = leftRight.Item2.YValues[0];
+			var x = chartX;
+
+			var y = ly + (x - lx) / (rx - lx) * (ry - ly);
+
+			return new DataPoint(x, y);
+		}
+
         #endregion
 
         #region Add & Remove

@@ -80,14 +80,44 @@ namespace WindowsFormsApplicationChart
 
         private void chart_MouseMove(object sender, MouseEventArgs e)
         {
-            mainArea.CursorX.SetCursorPixelPosition(new Point(e.X, e.Y), true);
-            mainArea.CursorY.SetCursorPixelPosition(new Point(e.X, e.Y), true);
+	        var mousePoint = new Point(e.X, e.Y);
 
-            positionX = mainArea.CursorX.Position;
-            positionY = mainArea.CursorY.Position;
+	        mainArea.CursorX.SetCursorPixelPosition(mousePoint, true);
+            mainArea.CursorY.SetCursorPixelPosition(mousePoint, true);
 
-            mousePositionLabel.Text = string.Concat("X = ", positionX, "; Y = ", positionY);
+			var p = LocationInChart(e.X, e.Y);
+
+			positionX = p.X;
+            positionY = p.Y;
+
+			mousePositionLabel.Text = string.Format("X = {0}; Y = {1}", p.X, p.Y);
         }
+
+		private PointF LocationInChart(float xMouse, float yMouse)
+	    {
+			try
+			{
+				var ca = chart.ChartAreas[0];
+
+				var relInControl = new PointF((xMouse / chart.Width) * 100, (yMouse / chart.Height) * 100);
+
+				//Verify we are inside the Chart Area
+				if (relInControl.X < ca.Position.X || relInControl.X > ca.Position.Right
+				    || relInControl.Y < ca.Position.Y || relInControl.Y > ca.Position.Bottom) return PointF.Empty;
+
+				var x = ca.AxisX.PixelPositionToValue(xMouse);
+				var y = ca.AxisY.PixelPositionToValue(yMouse);
+
+				if (ca.AxisX.IsLogarithmic) x = Math.Pow(10, x);
+				if (ca.AxisY.IsLogarithmic) y = Math.Pow(10, y);
+
+				return new PointF((float) x, (float) y);
+			}
+			catch (InvalidOperationException)
+			{
+				return PointF.Empty;
+			}
+	    }
 
         #region MainArea
         private void mainArea_Set()
@@ -147,7 +177,7 @@ namespace WindowsFormsApplicationChart
                 zoom_Set();
             }
 
-            if (string.CompareOrdinal(logCheckBox.Name, "xLogCheckBox") == 0)
+            if (logCheckBox == xLogCheckBox)
             {
                 if (mainLine.Points[0].XValue <= 0)
                 {
@@ -159,7 +189,7 @@ namespace WindowsFormsApplicationChart
                 mainArea.AxisX.IsLogarithmic = xLogCheckBox.Checked;
             }
 
-            if (string.CompareOrdinal(logCheckBox.Name, "yLogCheckBox") == 0)
+			else if (logCheckBox == yLogCheckBox)
             {
                 var minY = mainLine.Points[0].YValues[0];
                 foreach (var point in mainLine.Points)
@@ -288,15 +318,8 @@ namespace WindowsFormsApplicationChart
         private void chart_MouseDown_Cut(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            if (mainArea.AxisX.IsLogarithmic || mainArea.AxisY.IsLogarithmic)
-            {
-                MessageBox.Show("На логарифмической шкале не возможно построение отрезков.",
-                    string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
 
-            var point = new DataPoint(positionX, positionY);
-            var pointStick = Cut.CalcStick(mainLine, point); //прилипание первой точки
+			var pointStick = Cut.CalcStick(mainLine, positionX); //прилипание первой точки
 
             cut = new Cut(pointStick.XValue, pointStick.YValues[0], pointStick.XValue, pointStick.YValues[0]);
             cut.Draw(chart);
@@ -309,20 +332,20 @@ namespace WindowsFormsApplicationChart
         {
             if (cut == null) return;
 
-            var point = new DataPoint(positionX, positionY);
+			var pointStick = Cut.CalcStick(mainLine, positionX); //прилипание второй точки по ходу движения
 
             cut.Erase();
-            cut.X2 = point.XValue;
+			cut.X2 = pointStick.XValue;
+	        cut.Y2 = pointStick.YValues[0];
             cut.Draw(chart);
         }
 
         private void chart_MouseUp_Cut(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            if (cut == null) return;
+			if (cut == null) return;
 
-            var point = new DataPoint(positionX, positionY);
-            var pointStick = Cut.CalcStick(mainLine, point); //прилипание второй точки
+			var pointStick = Cut.CalcStick(mainLine, positionX); //прилипание второй точки
 
             cut.X2 = pointStick.XValue;
             cut.Y2 = pointStick.YValues[0];
@@ -361,12 +384,20 @@ namespace WindowsFormsApplicationChart
 				var currentCut = cutDetailsPanel.Tag as Cut;
 				if (currentCut == null) return;
 
-                if (string.CompareOrdinal(xTextBox.Name, "x1TextBox") == 0) currentCut.X1 = x1;
-                if (string.CompareOrdinal(xTextBox.Name, "x2TextBox") == 0) currentCut.X2 = x2;
+	            if (xTextBox == x1TextBox)
+	            {
+		            currentCut.X1 = x1;
+					currentCut.Y1 = Cut.CalcStick(mainLine, x1).YValues[0];
+	            }
+				else if (xTextBox == x2TextBox)
+				{
+					currentCut.X2 = x2;
+					currentCut.Y2 = Cut.CalcStick(mainLine, x2).YValues[0];
+				}
 
                 lenghtLabel.Text = currentCut.Lenght.ToString();
-                slopeLabel.Text = currentCut.Area.ToString();
-                areaLabel.Text = currentCut.Slope.ToString();
+                slopeLabel.Text = currentCut.Slope.ToString();
+                areaLabel.Text = currentCut.Area.ToString();
             }
             else
             {
