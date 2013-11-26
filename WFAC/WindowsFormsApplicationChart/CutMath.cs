@@ -20,7 +20,42 @@ namespace WindowsFormsApplicationChart
 
 		public double CalcArea(Cut cut, Line line)
 		{
-			return 0;
+			var result = 0d;
+
+			var i = 0;
+			DataPoint first = null;
+			DataPoint last = null;
+			DataPoint prevLast = null;
+			foreach (var point in line.GetPointsLocalizeSegment(cut.X1, cut.X2))
+			{
+				if (i == 0) first = point;
+				else if (i == 1 && first != null)
+				{
+					// Left part
+					var y = GetMiddlePointY(first.XValue, first.YValues[0], point.XValue, point.YValues[0], cut.X1);
+					result += 0.5 * (first.YValues[0] + y) * (cut.X1 - first.XValue);
+				}
+				else if (last != null)
+				{
+					// Middle & Right parts
+					result += 0.5 * (last.YValues[0] + point.YValues[0]) * (point.XValue - last.XValue);
+				}
+
+				prevLast = last;
+				last = point;
+				i++;
+			}
+
+			if (last != null && prevLast != null)
+			{
+				// We should substract excessed right part
+				var y = GetMiddlePointY(prevLast.XValue, prevLast.YValues[0], last.XValue, last.YValues[0], cut.X2);
+				result -= 0.5 * (last.YValues[0] + y) * (last.XValue - cut.X2);
+			}
+
+			result -= Math.Min(cut.Y1, cut.Y2) * (cut.X2 - cut.X1);
+
+			return result;
 		}
 
 		public double CalcSlope(Cut cut)
@@ -46,7 +81,7 @@ namespace WindowsFormsApplicationChart
 			var ry = leftRight.Item2.YValues[0];
 			var x = chartX;
 
-			var y = ly + (x - lx) / (rx - lx) * (ry - ly);
+			var y = GetMiddlePointY(lx, ly, rx, ry, x);
 
 			return new DataPoint(x, y);
 		}
@@ -75,6 +110,14 @@ namespace WindowsFormsApplicationChart
 			{
 				return PointF.Empty;
 			}
+		}
+
+		private static double GetMiddlePointY(double lx, double ly, double rx, double ry, double x)
+		{
+			if (Math.Abs(rx - lx) < 0.0000001)
+				return ry;
+
+			return ly + (x - lx) / (rx - lx) * (ry - ly);
 		}
 	}
 }

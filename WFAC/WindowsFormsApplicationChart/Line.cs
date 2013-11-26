@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -31,18 +32,43 @@ namespace WindowsFormsApplicationChart
             chart.Series.Insert(0, this);
         }
 
+		public IEnumerable<DataPoint> GetPointsLocalizeSegment(double x1, double x2)
+		{
+			int min, max, notused;
+			SearchNearest(x1, out min, out notused);
+			SearchNearest(x2, out notused, out max);
+
+			for (var i = min; i <= max; i++)
+				yield return pointsOrderedByX[i];
+		}
+
 	    public Tuple<DataPoint, DataPoint> GetLeftRight(double x)
 	    {
-		    var first = pointsOrderedByX[0];
-		    if (x < first.XValue)
-			    return Tuple.Create(first, first);
+		    int min, max;
+		    SearchNearest(x, out min, out max);
 
-		    var last = pointsOrderedByX[pointsOrderedByX.Length - 1];
-		    if (x > last.XValue)
-				return Tuple.Create(last, last);
+			return Tuple.Create(pointsOrderedByX[min], pointsOrderedByX[max]);
+	    }
 
-			var min = 0;
-			var max = pointsOrderedByX.Length - 1;
+		private void SearchNearest(double x, out int min, out int max)
+		{
+			if (x < pointsOrderedByX[0].XValue)
+			{
+				min = 0;
+				max = 0;
+				return;
+			}
+			
+		    var lastIndex = pointsOrderedByX.Length - 1;
+			if (x > pointsOrderedByX[lastIndex].XValue)
+			{
+				min = lastIndex;
+				max = lastIndex;
+				return;
+			}
+
+			min = 0;
+			max = lastIndex;
 
 			while (max - min > 1)
 			{
@@ -52,8 +78,6 @@ namespace WindowsFormsApplicationChart
 				else
 					max = middle;
 			}
-
-			return Tuple.Create(pointsOrderedByX[min], pointsOrderedByX[max]);
-	    }
+		}
     }
 }
