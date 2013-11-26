@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -9,11 +8,7 @@ namespace WindowsFormsApplicationChart
 	public class Cut : Series
     {
 		private readonly CutPanelHolder cutPanelHolder;
-		private double _x1;
-        private double _x2;
-        private double _y1;
-        private double _y2;
-
+		
 		protected Cut(CutPanelHolder cutPanelHolder)
         {
 			this.cutPanelHolder = cutPanelHolder;
@@ -27,111 +22,50 @@ namespace WindowsFormsApplicationChart
 		public Cut(CutPanelHolder cutPanelHolder, double x1, double y1, double x2, double y2)
 			: this(cutPanelHolder)
         {
-            X1 = x1;
-            Y1 = y1;
-            X2 = x2;
-            Y2 = y2;
+			ChangeLeftPoint(x1, y1);
+			ChangeRightPoint(x2, y2);
         }
 
 		public Cut(CutPanelHolder cutPanelHolder, List<DataPoint> points)
 			: this(cutPanelHolder)
         {
-            X1 = (points)[0].XValue;
-            Y1 = (points)[0].YValues[0];
-            X2 = (points)[1].XValue;
-            Y2 = (points)[1].YValues[0];
+			ChangeLeftPoint((points)[0].XValue, (points)[0].YValues[0]);
+			ChangeRightPoint((points)[1].XValue, (points)[1].YValues[0]);
         }
 
-	    #region Properties
-        public double X1
-        {
-            get { return _x1; }
-            set
-            {
-                _x1 = value;
-                ChangeItems();
-            }
-        }
+		public double X1 { get; private set; }
 
-        public double X2
-        {
-            get { return _x2; }
-            set
-            {
-                _x2 = value;
-                ChangeItems();
-            }
-        }
+        public double X2 { get; private set; }
 
-        public double Y1
-        {
-            get { return _y1; }
-            set
-            {
-                _y1 = value;
-                ChangeItems();
-            }
-        }
+		public double Y1 { get; private set; }
 
-        public double Y2
-        {
-            get { return _y2; }
-            set
-            {
-                _y2 = value;
-                ChangeItems();
-            }
-        }
-
-        public double Lenght { get; private set; }
-
-		public double Height { get; private set; }
-
-        public double Area { get; private set; }
-
-        public double Slope { get; private set; }
+		public double Y2 { get; private set; }
 
         public Chart ParentChart { get; private set; }
 
         public Panel DetailsPanel { get; set; }
-        #endregion
 
-        private void ChangeItems()
+		public void ChangeLeftPoint(double x1, double y1)
+		{
+			X1 = x1;
+			Y1 = y1;
+			ChangeItems();
+		}
+
+		public void ChangeRightPoint(double x2, double y2)
+		{
+			X2 = x2;
+	        Y2 = y2;
+			ChangeItems();
+		}
+
+		private void ChangeItems()
         {
             Points.Clear();
             Points.Add(new DataPoint(X1, Y1));
             Points.Add(new DataPoint(X2, Y2));
-
-            Lenght = MathLength();
-            Height = MathHeight();
-            Area = MathArea();
-            Slope = MathSlope();
+			cutPanelHolder.RefreshPanel(this);
         }
-
-        #region Math
-        private double MathLength()
-        {
-	        return X2 - X1;
-        }
-
-		private double MathHeight()
-		{
-			return Y2 - Y1;
-		}
-
-        private double MathArea()
-        {
-            return 0;
-        }
-
-        private double MathSlope()
-        {
-	        if (Math.Abs(X1 - X2) < 1e-10)
-				return Y2 >= Y1 ? double.PositiveInfinity : double.NegativeInfinity;
-
-	        return (Y2 - Y1) / (X2 - X1);
-        }
-        #endregion
 
         #region Draw & Erase & Stick
         public void Draw(Chart chart)

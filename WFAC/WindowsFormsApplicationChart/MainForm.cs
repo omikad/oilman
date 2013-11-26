@@ -10,7 +10,6 @@ namespace WindowsFormsApplicationChart
     public partial class MainForm : Form
     {
 	    private readonly CutPanelHolder cutPanelHolder;
-        private Line mainLine;
         private ChartArea mainArea;
         private double positionX;
         private double positionY;
@@ -22,11 +21,13 @@ namespace WindowsFormsApplicationChart
             Load += mainForm_Load;
         }
 
-        private void mainForm_Load(object sender, EventArgs e)
+	    public Line MainLine { get; private set; }
+		
+		private void mainForm_Load(object sender, EventArgs e)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             mainForm_SizeChanged(this, new EventArgs());
-            mainLine = new Line();
+            MainLine = new Line();
             mainArea = chart.ChartAreas[0];
         }
 
@@ -37,7 +38,7 @@ namespace WindowsFormsApplicationChart
             Cut.EraseAll(chart);
 			cutPanelHolder.ClearPanel();
 
-            mainLine.Points.Clear();
+            MainLine.Points.Clear();
 
             chart.MouseMove -= chart_MouseMove;
             chart.MouseDown -= chart_MouseDown_Cut;
@@ -50,8 +51,8 @@ namespace WindowsFormsApplicationChart
 
             chart_Reset();
 
-            mainLine = new Line(data[0]);
-            mainLine.Draw(chart);
+            MainLine = new Line(data[0]);
+            MainLine.Draw(chart);
 
             mainArea_Set();
             mainArea_Reset();
@@ -182,7 +183,7 @@ namespace WindowsFormsApplicationChart
 
             if (logCheckBox == xLogCheckBox)
             {
-                if (mainLine.Points[0].XValue <= 0)
+                if (MainLine.Points[0].XValue <= 0)
                 {
                     mainLine_InfoMessage();
                     logCheckBox_HandlerToggle(xLogCheckBox);
@@ -194,8 +195,8 @@ namespace WindowsFormsApplicationChart
 
 			else if (logCheckBox == yLogCheckBox)
             {
-                var minY = mainLine.Points[0].YValues[0];
-                foreach (var point in mainLine.Points)
+                var minY = MainLine.Points[0].YValues[0];
+                foreach (var point in MainLine.Points)
                 {
                     if (point.YValues[0] < minY) minY = point.YValues[0];
                 }
@@ -322,7 +323,7 @@ namespace WindowsFormsApplicationChart
         {
             if (e.Button != MouseButtons.Right) return;
 
-			var pointStick = Cut.CalcStick(mainLine, positionX); //прилипание первой точки
+			var pointStick = Cut.CalcStick(MainLine, positionX); //прилипание первой точки
 
             cut = new Cut(cutPanelHolder, pointStick.XValue, pointStick.YValues[0], pointStick.XValue, pointStick.YValues[0]);
             cut.Draw(chart);
@@ -335,11 +336,10 @@ namespace WindowsFormsApplicationChart
         {
             if (cut == null) return;
 
-			var pointStick = Cut.CalcStick(mainLine, positionX); //прилипание второй точки по ходу движения
+			var pointStick = Cut.CalcStick(MainLine, positionX); //прилипание второй точки по ходу движения
 
             cut.Erase();
-			cut.X2 = pointStick.XValue;
-	        cut.Y2 = pointStick.YValues[0];
+			cut.ChangeRightPoint(pointStick.XValue, pointStick.YValues[0]);
             cut.Draw(chart);
         }
 
@@ -348,10 +348,9 @@ namespace WindowsFormsApplicationChart
             if (e.Button != MouseButtons.Right) return;
 			if (cut == null) return;
 
-			var pointStick = Cut.CalcStick(mainLine, positionX); //прилипание второй точки
+			var pointStick = Cut.CalcStick(MainLine, positionX); //прилипание второй точки
 
-            cut.X2 = pointStick.XValue;
-            cut.Y2 = pointStick.YValues[0];
+			cut.ChangeRightPoint(pointStick.XValue, pointStick.YValues[0]);
 
             cut.Erase();
             cut.Draw(chart);
@@ -389,16 +388,12 @@ namespace WindowsFormsApplicationChart
 
 	            if (xTextBox == x1TextBox)
 	            {
-		            currentCut.X1 = x1;
-					currentCut.Y1 = Cut.CalcStick(mainLine, x1).YValues[0];
-	            }
+					currentCut.ChangeLeftPoint(x1, Cut.CalcStick(MainLine, x1).YValues[0]);
+				}
 				else if (xTextBox == x2TextBox)
 				{
-					currentCut.X2 = x2;
-					currentCut.Y2 = Cut.CalcStick(mainLine, x2).YValues[0];
+					currentCut.ChangeRightPoint(x2, Cut.CalcStick(MainLine, x2).YValues[0]);
 				}
-
-				cutPanelHolder.RefreshPanel(currentCut);
             }
             else
             {
@@ -412,5 +407,10 @@ namespace WindowsFormsApplicationChart
                         string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         #endregion
+
+		private void buttonToExcel_Click(object sender, EventArgs e)
+		{
+
+		}
     }
 }

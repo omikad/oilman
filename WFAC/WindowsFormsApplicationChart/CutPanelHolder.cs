@@ -3,10 +3,12 @@
 	public class CutPanelHolder
 	{
 		private readonly MainForm mainForm;
+		private readonly CutMath cutMath;
 
 		public CutPanelHolder(MainForm mainForm)
 		{
 			this.mainForm = mainForm;
+			cutMath = new CutMath();
 		}
 
 		public void ClearPanel()
@@ -23,10 +25,13 @@
 		{
 			mainForm.x1TextBox.Text = cut.X1.ToString("0.###");
 			mainForm.x2TextBox.Text = cut.X2.ToString("0.###");
-			mainForm.tbDeltaX.Text = cut.Lenght.ToString("0.##");
-			mainForm.tbDeltaY.Text = cut.Height.ToString("0.##");
-			mainForm.tbSlope.Text = cut.Slope.ToString("0.###");
-			mainForm.tbArea.Text = cut.Area.ToString("0.###");
+
+			mainForm.tbDeltaX.Text = cutMath.CalcDeltaX(cut).ToString("0.##");
+			mainForm.tbDeltaY.Text = cutMath.CalcDeltaY(cut).ToString("0.##");
+			mainForm.tbSlope.Text = cutMath.CalcSlope(cut).ToString("0.###");
+
+			if (mainForm.MainLine != null)
+				mainForm.tbArea.Text = cutMath.CalcArea(cut, mainForm.MainLine).ToString("0.###");
 		}
 	}
 }

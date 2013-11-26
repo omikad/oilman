@@ -49,6 +49,7 @@
     <Compile Include="Cut.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="CutMath.cs" />
     <Compile Include="CutPanelHolder.cs" />
     <Compile Include="Data.cs">
       <SubType>Code</SubType>
