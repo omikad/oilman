@@ -6,7 +6,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace WindowsFormsApplicationChart
 {
-    class Line : Series
+	public class Line : Series
     {
 	    private readonly DataPoint[] pointsOrderedByX;
 

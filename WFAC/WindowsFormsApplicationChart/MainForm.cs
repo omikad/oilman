@@ -9,6 +9,7 @@ namespace WindowsFormsApplicationChart
 {
     public partial class MainForm : Form
     {
+	    private readonly CutPanelHolder cutPanelHolder;
         private Line mainLine;
         private ChartArea mainArea;
         private double positionX;
@@ -16,6 +17,7 @@ namespace WindowsFormsApplicationChart
 
         public MainForm()
         {
+			cutPanelHolder = new CutPanelHolder(this);
             InitializeComponent();
             Load += mainForm_Load;
         }
@@ -31,8 +33,9 @@ namespace WindowsFormsApplicationChart
         private void chart_Reset()
         {
             cutCollectionPanel.Controls.Clear();
+
             Cut.EraseAll(chart);
-            Cut.DetailsPanelClear(cutDetailsPanel);
+			cutPanelHolder.ClearPanel();
 
             mainLine.Points.Clear();
 
@@ -55,7 +58,7 @@ namespace WindowsFormsApplicationChart
 
             for (var i = 1; i < data.Count; i++)
             {
-                var current = new Cut(data[i]);
+                var current = new Cut(cutPanelHolder, data[i]);
                 current.Draw(chart);
                 current.DetailsPanel = cutDetailsPanel;
                 current.AddToPanel(cutCollectionPanel);
@@ -321,7 +324,7 @@ namespace WindowsFormsApplicationChart
 
 			var pointStick = Cut.CalcStick(mainLine, positionX); //прилипание первой точки
 
-            cut = new Cut(pointStick.XValue, pointStick.YValues[0], pointStick.XValue, pointStick.YValues[0]);
+            cut = new Cut(cutPanelHolder, pointStick.XValue, pointStick.YValues[0], pointStick.XValue, pointStick.YValues[0]);
             cut.Draw(chart);
 
             chart.MouseMove += chart_MouseMove_Cut;
@@ -395,15 +398,11 @@ namespace WindowsFormsApplicationChart
 					currentCut.Y2 = Cut.CalcStick(mainLine, x2).YValues[0];
 				}
 
-                lenghtLabel.Text = currentCut.Lenght.ToString();
-                slopeLabel.Text = currentCut.Slope.ToString();
-                areaLabel.Text = currentCut.Area.ToString();
+				cutPanelHolder.RefreshPanel(currentCut);
             }
             else
             {
-                lenghtLabel.Text = 0.ToString();
-                slopeLabel.Text = 0.ToString();
-                areaLabel.Text = 0.ToString();
+				cutPanelHolder.ClearPanel();
             }
         }
 

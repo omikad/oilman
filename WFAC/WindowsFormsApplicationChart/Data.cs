@@ -10,14 +10,14 @@ namespace WindowsFormsApplicationChart
     {
         private static string OpenFile()
         {
-            var dialog = new OpenFileDialog { DefaultExt = ".csv", Filter = "(.csv)|*.csv" };
+			var dialog = new OpenFileDialog { Filter = "(All files *.*)|*.*|(.csv)|*.csv" };
             dialog.ShowDialog();
             return dialog.FileName;
         }
 
         private static string SaveFile()
         {
-            var dialog = new SaveFileDialog { DefaultExt = ".csv", Filter = "(.csv)|*.csv" };
+			var dialog = new SaveFileDialog { Filter = "(All files *.*)|*.*|(.csv)|*.csv" };
             dialog.ShowDialog();
             return dialog.FileName;
         }

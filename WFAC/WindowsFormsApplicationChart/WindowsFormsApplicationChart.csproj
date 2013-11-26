@@ -45,13 +45,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorRoulette.cs" />
     <Compile Include="Cut.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CutBase.cs" />
+    <Compile Include="CutPanelHolder.cs" />
     <Compile Include="Data.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Helper.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
