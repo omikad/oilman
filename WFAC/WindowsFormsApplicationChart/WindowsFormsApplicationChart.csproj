@@ -55,6 +55,7 @@
     </Compile>
     <Compile Include="CutMath.cs" />
     <Compile Include="CutInfoPanelHolder.cs" />
+    <Compile Include="MinMaxPanelHolder.cs" />
     <Compile Include="StoreManager.cs">
       <SubType>Code</SubType>
     </Compile>

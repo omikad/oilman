@@ -16,6 +16,7 @@ namespace WindowsFormsApplicationChart
 		[Import] private ExcelWriter excel;
 		[Import] private Func<Cut> createCut;
 		[Import] private StoreManager storeManager;
+		[Import] private MinMaxPanelHolder minMaxPanelHolder;
 
 		private ChartArea mainArea;
         private double positionX;
@@ -71,7 +72,7 @@ namespace WindowsFormsApplicationChart
                 current.AddToPanel(cutCollectionPanel);
             }
 
-            minMaxPanel_Set();
+            minMaxPanelHolder.Reset();
             zoom_Set();
 
             chart.MouseMove += chart_MouseMove;
@@ -156,7 +157,7 @@ namespace WindowsFormsApplicationChart
                     return;
                 }
 
-                minMaxPanel_Set();
+				minMaxPanelHolder.Reset();
                 mainArea_Set();
                 zoom_Set();
             }
@@ -224,80 +225,12 @@ namespace WindowsFormsApplicationChart
         }
         #endregion
 
-        #region MinMaxPanel
-        private void minMaxPanel_Set()
+		private void minMaxTextBox_TextChanged(object sender, EventArgs e)
         {
-            minMaxPanel_Reset();
-
-            foreach (var control in minMaxPanel.Controls)
-                if (control is TextBox)
-                    (control as TextBox).TextChanged += minMaxTextBox_TextChanged;
+	        minMaxPanelHolder.ChangeViewByTextboxes(sender, mainArea);
         }
 
-        private void minMaxPanel_Reset()
-        {
-            xMinTextBox.Text = string.Empty;
-            xMaxTextBox.Text = string.Empty;
-            yMinTextBox.Text = string.Empty;
-            yMaxTextBox.Text = string.Empty;
-        }
-
-        private void minMaxTextBox_TextChanged(object sender, EventArgs e)
-        {
-			var minMaxTextBox = sender as TextBox;
-			if (minMaxTextBox == null) return;
-
-            if (minMaxTextBox.Text.Length > 20) minMaxTextBox.Text = string.Empty;
-
-            double xmin, xmax, ymin, ymax;
-
-            if (double.TryParse(xMinTextBox.Text, out xmin))
-            {
-                if (!mainArea.AxisX.IsLogarithmic || (mainArea.AxisX.IsLogarithmic && xmin > 0))
-                {
-                    if (xmin < mainArea.AxisX.Maximum)
-                    {
-                        mainArea.AxisX.Minimum = xmin;
-                    }
-                }
-            }
-
-            if (double.TryParse(xMaxTextBox.Text, out xmax))
-            {
-                if (!mainArea.AxisX.IsLogarithmic || (mainArea.AxisX.IsLogarithmic && xmax > 0))
-                {
-                    if (xmax > mainArea.AxisX.Minimum)
-                    {
-                        mainArea.AxisX.Maximum = xmax;
-                    }
-                }
-            }
-
-            if (double.TryParse(yMinTextBox.Text, out ymin))
-            {
-                if (!mainArea.AxisY.IsLogarithmic || (mainArea.AxisY.IsLogarithmic && ymin > 0))
-                {
-                    if (ymin < mainArea.AxisY.Maximum)
-                    {
-                        mainArea.AxisY.Minimum = ymin;
-                    }
-                }
-            }
-
-            if (double.TryParse(yMaxTextBox.Text, out ymax))
-            {
-                if (!mainArea.AxisY.IsLogarithmic || (mainArea.AxisY.IsLogarithmic && ymax > 0))
-                {
-                    if (ymax > mainArea.AxisY.Minimum)
-                    {
-                        mainArea.AxisY.Maximum = ymax;
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #region Cuts
+		#region Cuts
 	    private Cut newCut;
 
         private void chart_MouseDown_Cut(object sender, MouseEventArgs e)

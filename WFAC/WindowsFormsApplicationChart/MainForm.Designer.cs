@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-			System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+			System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
 			this.cutsPanel = new System.Windows.Forms.Panel();
 			this.cutCollectionPanel = new System.Windows.Forms.Panel();
 			this.cutDetailsPanel = new System.Windows.Forms.Panel();
@@ -326,6 +326,7 @@
 			this.yMaxTextBox.Name = "yMaxTextBox";
 			this.yMaxTextBox.Size = new System.Drawing.Size(60, 20);
 			this.yMaxTextBox.TabIndex = 7;
+			this.yMaxTextBox.TextChanged += new System.EventHandler(this.minMaxTextBox_TextChanged);
 			// 
 			// yMinTextBox
 			// 
@@ -338,6 +339,7 @@
 			this.yMinTextBox.Name = "yMinTextBox";
 			this.yMinTextBox.Size = new System.Drawing.Size(60, 20);
 			this.yMinTextBox.TabIndex = 6;
+			this.yMinTextBox.TextChanged += new System.EventHandler(this.minMaxTextBox_TextChanged);
 			// 
 			// xLogCheckBox
 			// 
@@ -362,6 +364,7 @@
 			this.xMaxTextBox.Name = "xMaxTextBox";
 			this.xMaxTextBox.Size = new System.Drawing.Size(60, 20);
 			this.xMaxTextBox.TabIndex = 5;
+			this.xMaxTextBox.TextChanged += new System.EventHandler(this.minMaxTextBox_TextChanged);
 			// 
 			// xMinTextBox
 			// 
@@ -374,6 +377,7 @@
 			this.xMinTextBox.Name = "xMinTextBox";
 			this.xMinTextBox.Size = new System.Drawing.Size(60, 20);
 			this.xMinTextBox.TabIndex = 4;
+			this.xMinTextBox.TextChanged += new System.EventHandler(this.minMaxTextBox_TextChanged);
 			// 
 			// yMaxLabel
 			// 
@@ -433,19 +437,19 @@
 			// 
 			// chart
 			// 
-			chartArea1.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-			chartArea1.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-			chartArea1.Name = "ChartArea1";
-			this.chart.ChartAreas.Add(chartArea1);
+			chartArea3.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+			chartArea3.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+			chartArea3.Name = "ChartArea1";
+			this.chart.ChartAreas.Add(chartArea3);
 			this.chart.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.chart.Location = new System.Drawing.Point(0, 99);
 			this.chart.Name = "chart";
-			series1.BorderWidth = 2;
-			series1.ChartArea = "ChartArea1";
-			series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-			series1.Color = System.Drawing.Color.Green;
-			series1.Name = "Series1";
-			this.chart.Series.Add(series1);
+			series3.BorderWidth = 2;
+			series3.ChartArea = "ChartArea1";
+			series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+			series3.Color = System.Drawing.Color.Green;
+			series3.Name = "Series1";
+			this.chart.Series.Add(series3);
 			this.chart.Size = new System.Drawing.Size(624, 354);
 			this.chart.TabIndex = 1002;
 			// 
@@ -492,13 +496,8 @@
 		private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label mousePositionLabel;
-        private System.Windows.Forms.Panel cutCollectionPanel;
-        private System.Windows.Forms.Panel minMaxPanel;
-        private System.Windows.Forms.CheckBox xLogCheckBox;
-        private System.Windows.Forms.TextBox yMaxTextBox;
-        private System.Windows.Forms.TextBox yMinTextBox;
-        private System.Windows.Forms.TextBox xMaxTextBox;
-        private System.Windows.Forms.TextBox xMinTextBox;
+		private System.Windows.Forms.Panel cutCollectionPanel;
+		private System.Windows.Forms.CheckBox xLogCheckBox;
         private System.Windows.Forms.Label yMaxLabel;
         private System.Windows.Forms.Label yMinLabel;
         private System.Windows.Forms.Label xMaxLabel;
@@ -513,5 +512,10 @@
 		public System.Windows.Forms.TextBox x1TextBox;
 		public System.Windows.Forms.TextBox x2TextBox;
 		private System.Windows.Forms.Button buttonToExcel;
+		public System.Windows.Forms.TextBox yMaxTextBox;
+		public System.Windows.Forms.TextBox yMinTextBox;
+		public System.Windows.Forms.TextBox xMaxTextBox;
+		public System.Windows.Forms.TextBox xMinTextBox;
+		public System.Windows.Forms.Panel minMaxPanel;
     }
 }
