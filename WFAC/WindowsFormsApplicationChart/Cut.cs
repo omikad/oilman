@@ -27,14 +27,13 @@ namespace WindowsFormsApplicationChart
 
 		public double Y2 { get; private set; }
 
-        public Chart ParentChart { get; private set; }
-
-        public Panel DetailsPanel { get; private set; }
+		private Chart parentChart;
+		private Panel detailsPanel;
 
 		public void Initialize(Chart chart, Panel cutDetailsPanel, double x1, double y1, double x2, double y2)
 		{
-			ParentChart = chart;
-			DetailsPanel = cutDetailsPanel;
+			parentChart = chart;
+			detailsPanel = cutDetailsPanel;
 			X1 = x1;
 			Y1 = y1;
 			X2 = x2;
@@ -72,7 +71,7 @@ namespace WindowsFormsApplicationChart
 
         public void Erase()
         {
-            if (ParentChart.Series.IndexOf(this) > -1) ParentChart.Series.Remove(this);
+            if (parentChart.Series.IndexOf(this) > -1) parentChart.Series.Remove(this);
         }
 
         #endregion
@@ -114,10 +113,10 @@ namespace WindowsFormsApplicationChart
 
         private void RemoveFromPanel(Panel cutCollectionPanel, Panel cutPanel)
         {
-            if (ParentChart == null) return;
+            if (parentChart == null) return;
 
             Erase();
-            DetailsPanel.Tag = null;
+            detailsPanel.Tag = null;
             cutCollectionPanel.Controls.Remove(cutPanel);
             ChangePanel(cutCollectionPanel);
         }
@@ -145,7 +144,7 @@ namespace WindowsFormsApplicationChart
 
 	        cutPanel.BackColor = Color.Luminance(0.7);
 
-            foreach (var series in ParentChart.Series)
+            foreach (var series in parentChart.Series)
             {
                 if (series is Cut)
                 {
@@ -155,7 +154,7 @@ namespace WindowsFormsApplicationChart
 
             BorderWidth = 4;
 
-            DetailsPanel.Tag = this;
+            detailsPanel.Tag = this;
 
 	        cutInfoPanelHolder.RefreshPanel(this);
         }

@@ -15,6 +15,7 @@ namespace WindowsFormsApplicationChart
 		[Import] private CutMath cutMath;
 		[Import] private ExcelWriter excel;
 		[Import] private Func<Cut> createCut;
+		[Import] private StoreManager storeManager;
 
 		private ChartArea mainArea;
         private double positionX;
@@ -51,23 +52,21 @@ namespace WindowsFormsApplicationChart
 
         private void loadMenuItem_Click(object sender, EventArgs e)
         {
-            var data = Data.Load();
-            if (data == null || data.Count <= 0) return;
+            var data = storeManager.Load();
+            if (data == null || data.Line.Count <= 0) return;
 
             chart_Reset();
 
-            MainLine = new Line(data[0]);
+            MainLine = new Line(data);
             MainLine.Draw(chart);
 
             mainArea_Set();
             mainArea_Reset();
 
-            for (var i = 1; i < data.Count; i++)
-            {
-	            var points = data[i];
-
+	        foreach (var cutPoints in data.Cuts)
+			{
 	            var current = createCut();
-				newCut.Initialize(chart, cutDetailsPanel, points[0].XValue, points[0].YValues[0], points[1].XValue, points[1].YValues[0]);
+				current.Initialize(chart, cutDetailsPanel, cutPoints[0], cutPoints[1], cutPoints[2], cutPoints[3]);
                 current.Draw(chart);
                 current.AddToPanel(cutCollectionPanel);
             }
@@ -81,7 +80,7 @@ namespace WindowsFormsApplicationChart
 
         private void saveMenuItem_Click(object sender, EventArgs e)
         {
-            Data.Save(chart);
+            storeManager.Save(chart);
         }
 
         private void mainForm_SizeChanged(object sender, EventArgs e)

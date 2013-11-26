@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -14,10 +13,10 @@ namespace WindowsFormsApplicationChart
 	    {
 	    }
 
-        public Line(IEnumerable<DataPoint> points)
+        public Line(StoreInformation storeData)
         {
-	        foreach (var point in points)
-		        Points.Add(new DataPoint(point.XValue, point.YValues[0]));
+			foreach (var point in storeData.Line)
+		        Points.Add(new DataPoint(point[0], point[1]));
 
 			pointsOrderedByX = Points.OrderBy(p => p.XValue).ToArray();
 
