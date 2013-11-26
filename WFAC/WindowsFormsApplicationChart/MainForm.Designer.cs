@@ -28,11 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-			System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+			System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
 			this.cutsPanel = new System.Windows.Forms.Panel();
 			this.cutCollectionPanel = new System.Windows.Forms.Panel();
 			this.cutDetailsPanel = new System.Windows.Forms.Panel();
+			this.buttonToExcel = new System.Windows.Forms.Button();
 			this.tbArea = new System.Windows.Forms.TextBox();
 			this.tbSlope = new System.Windows.Forms.TextBox();
 			this.tbDeltaY = new System.Windows.Forms.TextBox();
@@ -61,7 +62,6 @@
 			this.xMaxLabel = new System.Windows.Forms.Label();
 			this.xMinLabel = new System.Windows.Forms.Label();
 			this.chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-			this.buttonToExcel = new System.Windows.Forms.Button();
 			this.cutsPanel.SuspendLayout();
 			this.cutDetailsPanel.SuspendLayout();
 			this.menuPanel.SuspendLayout();
@@ -111,6 +111,16 @@
 			this.cutDetailsPanel.Name = "cutDetailsPanel";
 			this.cutDetailsPanel.Size = new System.Drawing.Size(193, 249);
 			this.cutDetailsPanel.TabIndex = 3;
+			// 
+			// buttonToExcel
+			// 
+			this.buttonToExcel.Location = new System.Drawing.Point(113, 221);
+			this.buttonToExcel.Name = "buttonToExcel";
+			this.buttonToExcel.Size = new System.Drawing.Size(75, 23);
+			this.buttonToExcel.TabIndex = 16;
+			this.buttonToExcel.Text = "to Excel";
+			this.buttonToExcel.UseVisualStyleBackColor = true;
+			this.buttonToExcel.Click += new System.EventHandler(this.buttonToExcel_Click);
 			// 
 			// tbArea
 			// 
@@ -290,7 +300,7 @@
 			this.minMaxPanel.Dock = System.Windows.Forms.DockStyle.Top;
 			this.minMaxPanel.Location = new System.Drawing.Point(0, 24);
 			this.minMaxPanel.Name = "minMaxPanel";
-			this.minMaxPanel.Size = new System.Drawing.Size(624, 25);
+			this.minMaxPanel.Size = new System.Drawing.Size(624, 75);
 			this.minMaxPanel.TabIndex = 0;
 			// 
 			// yLogCheckBox
@@ -423,31 +433,21 @@
 			// 
 			// chart
 			// 
-			chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-			chartArea2.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-			chartArea2.Name = "ChartArea1";
-			this.chart.ChartAreas.Add(chartArea2);
+			chartArea1.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+			chartArea1.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+			chartArea1.Name = "ChartArea1";
+			this.chart.ChartAreas.Add(chartArea1);
 			this.chart.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.chart.Location = new System.Drawing.Point(0, 49);
+			this.chart.Location = new System.Drawing.Point(0, 99);
 			this.chart.Name = "chart";
-			series2.BorderWidth = 2;
-			series2.ChartArea = "ChartArea1";
-			series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-			series2.Color = System.Drawing.Color.Green;
-			series2.Name = "Series1";
-			this.chart.Series.Add(series2);
-			this.chart.Size = new System.Drawing.Size(624, 404);
+			series1.BorderWidth = 2;
+			series1.ChartArea = "ChartArea1";
+			series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+			series1.Color = System.Drawing.Color.Green;
+			series1.Name = "Series1";
+			this.chart.Series.Add(series1);
+			this.chart.Size = new System.Drawing.Size(624, 354);
 			this.chart.TabIndex = 1002;
-			// 
-			// buttonToExcel
-			// 
-			this.buttonToExcel.Location = new System.Drawing.Point(113, 221);
-			this.buttonToExcel.Name = "buttonToExcel";
-			this.buttonToExcel.Size = new System.Drawing.Size(75, 23);
-			this.buttonToExcel.TabIndex = 16;
-			this.buttonToExcel.Text = "to Excel";
-			this.buttonToExcel.UseVisualStyleBackColor = true;
-			this.buttonToExcel.Click += new System.EventHandler(this.buttonToExcel_Click);
 			// 
 			// MainForm
 			// 
@@ -464,6 +464,7 @@
 			this.MinimumSize = new System.Drawing.Size(835, 384);
 			this.Name = "MainForm";
 			this.Text = "TDA v1 Oil Company Project Well Name";
+			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 			this.SizeChanged += new System.EventHandler(this.mainForm_SizeChanged);
 			this.cutsPanel.ResumeLayout(false);
 			this.cutDetailsPanel.ResumeLayout(false);

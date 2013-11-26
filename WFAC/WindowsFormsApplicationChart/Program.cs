@@ -1,4 +1,7 @@
 ﻿using System;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace WindowsFormsApplicationChart
@@ -8,12 +11,24 @@ namespace WindowsFormsApplicationChart
         [STAThread]
         static void Main()
         {
-	        AppDomain.CurrentDomain.UnhandledException +=
-				(sender, args) => MessageBox.Show(args.ExceptionObject == null ? "null" : args.ExceptionObject.ToString());
+	        AppDomain.CurrentDomain.UnhandledException += (sender, args) => OnException(args.ExceptionObject);
+	        Application.ThreadException += (sender, args) => OnException(args.Exception);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+	        var container = new CompositionContainer(new AssemblyCatalog(Assembly.GetExecutingAssembly()));
+
+			container.ComposeExportedValue<Func<Cut>>(container.GetExportedValue<Cut>);
+
+	        var mainForm = container.GetExportedValue<MainForm>();
+
+			Application.Run(mainForm);
         }
+
+	    private static DialogResult OnException(object exception)
+	    {
+		    return MessageBox.Show(exception == null ? "null" : exception.ToString());
+	    }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
@@ -7,16 +8,20 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace WindowsFormsApplicationChart
 {
+	[Export]
     public partial class MainForm : Form
     {
-	    private readonly CutPanelHolder cutPanelHolder;
-        private ChartArea mainArea;
+	    [Import] private CutInfoPanelHolder cutInfoPanelHolder;
+		[Import] private CutMath cutMath;
+		[Import] private ExcelWriter excel;
+		[Import] private Func<Cut> createCut;
+
+		private ChartArea mainArea;
         private double positionX;
         private double positionY;
 
         public MainForm()
         {
-			cutPanelHolder = new CutPanelHolder(this);
             InitializeComponent();
             Load += mainForm_Load;
         }
@@ -35,8 +40,8 @@ namespace WindowsFormsApplicationChart
         {
             cutCollectionPanel.Controls.Clear();
 
-            Cut.EraseAll(chart);
-			cutPanelHolder.ClearPanel();
+			chart.Series.Clear();
+			cutInfoPanelHolder.ClearPanel();
 
             MainLine.Points.Clear();
 
@@ -59,9 +64,11 @@ namespace WindowsFormsApplicationChart
 
             for (var i = 1; i < data.Count; i++)
             {
-                var current = new Cut(cutPanelHolder, data[i]);
+	            var points = data[i];
+
+	            var current = createCut();
+				newCut.Initialize(chart, cutDetailsPanel, points[0].XValue, points[0].YValues[0], points[1].XValue, points[1].YValues[0]);
                 current.Draw(chart);
-                current.DetailsPanel = cutDetailsPanel;
                 current.AddToPanel(cutCollectionPanel);
             }
 
@@ -89,39 +96,13 @@ namespace WindowsFormsApplicationChart
 	        mainArea.CursorX.SetCursorPixelPosition(mousePoint, true);
             mainArea.CursorY.SetCursorPixelPosition(mousePoint, true);
 
-			var p = LocationInChart(e.X, e.Y);
+			var p = cutMath.LocationInChart(chart, e.X, e.Y);
 
 			positionX = p.X;
             positionY = p.Y;
 
 			mousePositionLabel.Text = string.Format("X = {0}; Y = {1}", p.X, p.Y);
         }
-
-		private PointF LocationInChart(float xMouse, float yMouse)
-	    {
-			try
-			{
-				var ca = chart.ChartAreas[0];
-
-				var relInControl = new PointF((xMouse / chart.Width) * 100, (yMouse / chart.Height) * 100);
-
-				//Verify we are inside the Chart Area
-				if (relInControl.X < ca.Position.X || relInControl.X > ca.Position.Right
-				    || relInControl.Y < ca.Position.Y || relInControl.Y > ca.Position.Bottom) return PointF.Empty;
-
-				var x = ca.AxisX.PixelPositionToValue(xMouse);
-				var y = ca.AxisY.PixelPositionToValue(yMouse);
-
-				if (ca.AxisX.IsLogarithmic) x = Math.Pow(10, x);
-				if (ca.AxisY.IsLogarithmic) y = Math.Pow(10, y);
-
-				return new PointF((float) x, (float) y);
-			}
-			catch (InvalidOperationException)
-			{
-				return PointF.Empty;
-			}
-	    }
 
         #region MainArea
         private void mainArea_Set()
@@ -318,15 +299,19 @@ namespace WindowsFormsApplicationChart
         #endregion
 
         #region Cuts
-        private Cut cut;
+	    private Cut newCut;
+
         private void chart_MouseDown_Cut(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
 
-			var pointStick = Cut.CalcStick(MainLine, positionX); //прилипание первой точки
+			var pointStick = cutMath.CalcStick(MainLine, positionX); //прилипание первой точки
 
-            cut = new Cut(cutPanelHolder, pointStick.XValue, pointStick.YValues[0], pointStick.XValue, pointStick.YValues[0]);
-            cut.Draw(chart);
+			newCut = createCut();
+			newCut.Initialize(chart, cutDetailsPanel, pointStick.XValue, pointStick.YValues[0], pointStick.XValue, pointStick.YValues[0]);
+			newCut.Draw(chart);
+
+			newCut.AddToPanel(cutCollectionPanel);
 
             chart.MouseMove += chart_MouseMove_Cut;
             chart.MouseUp += chart_MouseUp_Cut;
@@ -334,30 +319,26 @@ namespace WindowsFormsApplicationChart
 
         private void chart_MouseMove_Cut(object sender, MouseEventArgs e)
         {
-            if (cut == null) return;
+			if (newCut == null) return;
 
-			var pointStick = Cut.CalcStick(MainLine, positionX); //прилипание второй точки по ходу движения
+			var pointStick = cutMath.CalcStick(MainLine, positionX); //прилипание второй точки по ходу движения
 
-            cut.Erase();
-			cut.ChangeRightPoint(pointStick.XValue, pointStick.YValues[0]);
-            cut.Draw(chart);
+			newCut.ChangeRightPoint(pointStick.XValue, pointStick.YValues[0]);
+			newCut.Draw(chart);
         }
 
         private void chart_MouseUp_Cut(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-			if (cut == null) return;
+			if (newCut == null) return;
 
-			var pointStick = Cut.CalcStick(MainLine, positionX); //прилипание второй точки
+			var pointStick = cutMath.CalcStick(MainLine, positionX); //прилипание второй точки
 
-			cut.ChangeRightPoint(pointStick.XValue, pointStick.YValues[0]);
+			newCut.ChangeRightPoint(pointStick.XValue, pointStick.YValues[0]);
 
-            cut.Erase();
-            cut.Draw(chart);
-            cut.DetailsPanel = cutDetailsPanel;
-            cut.AddToPanel(cutCollectionPanel);
+			newCut.Draw(chart);
 
-            cut = null;
+			newCut = null;
 
             chart.MouseMove -= chart_MouseMove_Cut;
             chart.MouseUp -= chart_MouseUp_Cut;
@@ -388,16 +369,16 @@ namespace WindowsFormsApplicationChart
 
 	            if (xTextBox == x1TextBox)
 	            {
-					currentCut.ChangeLeftPoint(x1, Cut.CalcStick(MainLine, x1).YValues[0]);
+					currentCut.ChangeLeftPoint(x1, cutMath.CalcStick(MainLine, x1).YValues[0]);
 				}
 				else if (xTextBox == x2TextBox)
 				{
-					currentCut.ChangeRightPoint(x2, Cut.CalcStick(MainLine, x2).YValues[0]);
+					currentCut.ChangeRightPoint(x2, cutMath.CalcStick(MainLine, x2).YValues[0]);
 				}
             }
             else
             {
-				cutPanelHolder.ClearPanel();
+				cutInfoPanelHolder.ClearPanel();
             }
         }
 
@@ -410,7 +391,7 @@ namespace WindowsFormsApplicationChart
 
 		private void buttonToExcel_Click(object sender, EventArgs e)
 		{
-
+			excel.Export(chart);
 		}
     }
 }

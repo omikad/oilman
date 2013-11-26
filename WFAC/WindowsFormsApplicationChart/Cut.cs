@@ -1,36 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System.ComponentModel.Composition;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace WindowsFormsApplicationChart
 {
+	[Export, PartCreationPolicy(CreationPolicy.NonShared)]
 	public class Cut : Series
     {
-		private readonly CutPanelHolder cutPanelHolder;
-		
-		protected Cut(CutPanelHolder cutPanelHolder)
-        {
-			this.cutPanelHolder = cutPanelHolder;
-			var colorRoulette = new ColorRoulette();
+		private readonly CutInfoPanelHolder cutInfoPanelHolder;
 
-            ChartType = SeriesChartType.Line;
+		[ImportingConstructor]
+		public Cut(ColorRoulette colorRoulette, CutInfoPanelHolder cutInfoPanelHolder)
+        {
+			this.cutInfoPanelHolder = cutInfoPanelHolder;
+			ChartType = SeriesChartType.Line;
 			Color = colorRoulette.TakeColor();
             BorderWidth = 2;
-        }
-
-		public Cut(CutPanelHolder cutPanelHolder, double x1, double y1, double x2, double y2)
-			: this(cutPanelHolder)
-        {
-			ChangeLeftPoint(x1, y1);
-			ChangeRightPoint(x2, y2);
-        }
-
-		public Cut(CutPanelHolder cutPanelHolder, List<DataPoint> points)
-			: this(cutPanelHolder)
-        {
-			ChangeLeftPoint((points)[0].XValue, (points)[0].YValues[0]);
-			ChangeRightPoint((points)[1].XValue, (points)[1].YValues[0]);
         }
 
 		public double X1 { get; private set; }
@@ -43,7 +29,17 @@ namespace WindowsFormsApplicationChart
 
         public Chart ParentChart { get; private set; }
 
-        public Panel DetailsPanel { get; set; }
+        public Panel DetailsPanel { get; private set; }
+
+		public void Initialize(Chart chart, Panel cutDetailsPanel, double x1, double y1, double x2, double y2)
+		{
+			ParentChart = chart;
+			DetailsPanel = cutDetailsPanel;
+			X1 = x1;
+			Y1 = y1;
+			X2 = x2;
+			Y2 = y2;
+		}
 
 		public void ChangeLeftPoint(double x1, double y1)
 		{
@@ -64,13 +60,12 @@ namespace WindowsFormsApplicationChart
             Points.Clear();
             Points.Add(new DataPoint(X1, Y1));
             Points.Add(new DataPoint(X2, Y2));
-			cutPanelHolder.RefreshPanel(this);
+			cutInfoPanelHolder.RefreshPanel(this);
         }
 
         #region Draw & Erase & Stick
         public void Draw(Chart chart)
         {
-            ParentChart = chart;
             Erase();
             chart.Series.Add(this);
         }
@@ -79,31 +74,6 @@ namespace WindowsFormsApplicationChart
         {
             if (ParentChart.Series.IndexOf(this) > -1) ParentChart.Series.Remove(this);
         }
-
-        public static void EraseAll(Chart chart)
-        {
-            chart.Series.Clear();
-        }
-
-		/// <summary>
-		/// прилипание
-		/// </summary>
-		/// <param name="line">основная линия графика</param>
-		/// <param name="chartX">точка позиции курсора мыши в координатах графика</param>
-        public static DataPoint CalcStick(Line line, double chartX)
-		{
-			var leftRight = line.GetLeftRight(chartX);
-
-			var lx = leftRight.Item1.XValue;
-			var ly = leftRight.Item1.YValues[0];
-			var rx = leftRight.Item2.XValue;
-			var ry = leftRight.Item2.YValues[0];
-			var x = chartX;
-
-			var y = ly + (x - lx) / (rx - lx) * (ry - ly);
-
-			return new DataPoint(x, y);
-		}
 
         #endregion
 
@@ -187,7 +157,7 @@ namespace WindowsFormsApplicationChart
 
             DetailsPanel.Tag = this;
 
-	        cutPanelHolder.RefreshPanel(this);
+	        cutInfoPanelHolder.RefreshPanel(this);
         }
 
         private void removeLabel_MouseDown(object sender, MouseEventArgs e)

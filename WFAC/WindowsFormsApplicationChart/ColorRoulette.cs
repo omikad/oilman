@@ -1,19 +1,21 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel.Composition;
+using System.Drawing;
 
 namespace WindowsFormsApplicationChart
 {
+	[Export]
 	public class ColorRoulette
 	{
-		private readonly Color[] colors = new[]
-			{
-				Color.Red,
-				Color.Magenta,
-				Color.DodgerBlue,
-				Color.Orange,
-				Color.MediumPurple
-			};
+		private readonly Color[] colors =
+		{
+			Color.Red,
+			Color.Magenta,
+			Color.DodgerBlue,
+			Color.Orange,
+			Color.MediumPurple
+		};
 
-		private static int current;
+		private int current;
 
 		public Color TakeColor()
 		{

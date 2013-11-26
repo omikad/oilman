@@ -1,15 +1,12 @@
-﻿namespace WindowsFormsApplicationChart
-{
-	public class CutPanelHolder
-	{
-		private readonly MainForm mainForm;
-		private readonly CutMath cutMath;
+﻿using System.ComponentModel.Composition;
 
-		public CutPanelHolder(MainForm mainForm)
-		{
-			this.mainForm = mainForm;
-			cutMath = new CutMath();
-		}
+namespace WindowsFormsApplicationChart
+{
+	[Export]
+	public class CutInfoPanelHolder
+	{
+		[Import] private MainForm mainForm;
+		[Import] private CutMath cutMath;
 
 		public void ClearPanel()
 		{
